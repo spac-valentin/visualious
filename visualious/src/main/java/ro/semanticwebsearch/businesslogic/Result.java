@@ -5,9 +5,12 @@ import ro.semanticwebsearch.responsegenerator.model.Answer;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Created by Spac on 6/21/2015.
  */
+@XmlRootElement(name = "result")
 public class Result {
     private List<Answer> dbpedia = new ArrayList<>();
     private List<Answer> freebase = new ArrayList<>();

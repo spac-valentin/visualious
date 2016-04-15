@@ -3,6 +3,7 @@ package ro.semanticwebsearch.api.rest.endpoint;
 import org.apache.log4j.Logger;
 import ro.semanticwebsearch.api.rest.model.SearchDAO;
 import ro.semanticwebsearch.businesslogic.Dispatcher;
+import ro.semanticwebsearch.businesslogic.Result;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -19,7 +20,7 @@ public class Search {
 
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public String query(@BeanParam SearchDAO searchDAO) throws Exception {
+    public Result query(@BeanParam SearchDAO searchDAO) throws Exception {
         if (log.isInfoEnabled()) {
             log.info("Search query : " + searchDAO.toString());
         }
@@ -30,7 +31,7 @@ public class Search {
     @GET
     @Path("topSearches")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public String topSearches() {
+    public java.util.List<ro.semanticwebsearch.responsegenerator.model.Question> topSearches() {
         if (log.isInfoEnabled()) {
             log.info("Top searches");
         }

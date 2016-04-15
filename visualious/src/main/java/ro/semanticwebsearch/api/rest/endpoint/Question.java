@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import ro.semanticwebsearch.api.rest.model.Feedback;
 import ro.semanticwebsearch.api.rest.model.ResultsDAO;
 import ro.semanticwebsearch.businesslogic.QuestionDispatcher;
+import ro.semanticwebsearch.businesslogic.Result;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -18,7 +19,7 @@ public class Question {
 
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public String getMoreResults(@BeanParam ResultsDAO resultsDAO) {
+    public Result getMoreResults(@BeanParam ResultsDAO resultsDAO) {
         if (log.isInfoEnabled()) {
             log.info("More results for : " + resultsDAO.toString());
         }

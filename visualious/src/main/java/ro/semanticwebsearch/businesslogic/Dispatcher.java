@@ -11,7 +11,6 @@ import ro.semanticwebsearch.responsegenerator.parser.ParserType;
 import ro.semanticwebsearch.responsegenerator.parser.helper.Constants;
 import ro.semanticwebsearch.services.*;
 import ro.semanticwebsearch.utils.Config;
-import ro.semanticwebsearch.utils.JsonUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -45,7 +44,7 @@ public class Dispatcher {
      * @return string representing the JSON response
      * @throws IllegalAccessException
      */
-    public static String executeQuery(SearchDAO searchDAO) throws IllegalAccessException {
+    public static Result executeQuery(SearchDAO searchDAO) throws IllegalAccessException {
 
         if (log.isInfoEnabled()) {
             log.info("Execute query : " + searchDAO.toString());
@@ -76,7 +75,7 @@ public class Dispatcher {
             result = toResultObject(answers);
         }
 
-        return JsonUtil.pojoToString(result);
+        return result;
     }
 
     private static Result queryServices(SearchDAO searchDAO,  Question question)
@@ -258,8 +257,8 @@ public class Dispatcher {
     }
 
 
-    public static String getTopSearches() {
+    public static List<Question> getTopSearches() {
         List<Question> topSearches = MongoDBManager.getTopSearches();
-        return JsonUtil.pojoToString(topSearches);
+        return topSearches;
     }
 }

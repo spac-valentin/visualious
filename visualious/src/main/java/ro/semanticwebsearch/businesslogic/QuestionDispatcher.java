@@ -5,7 +5,6 @@ import ro.semanticwebsearch.api.rest.model.ResultsDAO;
 import ro.semanticwebsearch.persistence.MongoDBManager;
 import ro.semanticwebsearch.responsegenerator.model.Answer;
 import ro.semanticwebsearch.responsegenerator.parser.helper.Constants;
-import ro.semanticwebsearch.utils.JsonUtil;
 
 import java.util.List;
 
@@ -25,15 +24,13 @@ public class QuestionDispatcher {
 
     }
 
-    public static String getMoreResults(ResultsDAO resultsDAO) {
+    public static Result getMoreResults(ResultsDAO resultsDAO) {
         List<Answer> answers = MongoDBManager.getAnswersForQuestion(
                 resultsDAO.getQuestionId(),
                 resultsDAO.getOffset(),
                 Math.max(resultsDAO.getMax(), Constants.MAX_CHUNK_SIZE)
         );
 
-        Result results = Dispatcher.toResultObject(answers);
-
-        return JsonUtil.pojoToString(results);
+        return Dispatcher.toResultObject(answers);
     }
 }
