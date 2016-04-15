@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <title></title>
+
+        <link href="/resources/css/test.css" rel="stylesheet">
+        <link id="mainLayout" href="" rel="stylesheet"/>
+
+    </head>
+    <body>
+        <template id="answerArticle">
+            <!-- type: map,text,video,picture-->
+            {{#each answer}}
+            <article class="answer answer-{{type}}">
+                <div class="answerImg lookingForWidth float-left ">
+                    <img class="img-responsive" src="/resources/img/icons/{{type}}.png" alt="{{type}}"/>
+                </div>
+
+                <div class="aOptions feedbackOptions">
+                    <div  class="lookingForWidth float-right">
+                        <label class="img-checkbox-test">
+                            <input type="radio" name="feedbackOptions{{id}}" value="true" id=dislike{{id}} class="img-checkbox"/>
+                            <img class="img-responsive" src="/resources/img/icons/like-selected.png" alt="pin"/>
+                            <img class="img-responsive" src="/resources/img/icons/like.png" alt="pin"/>
+                        </label>
+                    </div>
+                    <div class="lookingForWidth float-right">
+                        <label class="img-checkbox-test">
+                            <input type="radio" rel="/resources/css/listLayout.css" name="feedbackOptions{{id}}" value="true" id=like{{id}} class="img-checkbox"/>
+                            <img class="img-responsive" src="/resources/img/icons/unlike-selected.png" alt="like"/>
+                            <img class="img-responsive" src="/resources/img/icons/unlike.png" alt="like"/>
+                        </label>
+                    </div>
+                    <div class="lookingForWidth float-right">
+                        <input type="checkbox" rel="/resources/css/gridLayout.css" name="feedbackOptions" value="true" id={{pinId}} class="img-checkbox"/>
+                        <img class="img-responsive col-xxs-2 pinnable" src="/resources/img/icons/pin.png" onclick="myNamespace.Result.pin(this);" alt="Pin this" title="Pin this" />
+                    </div>
+                    <div style="clear:both"></div>
+                </div>
+                <div class="answer-content"  itemscope itemtype="{{itemType}}">
+                    {{#ifEqual type "text"}}
+                        <p itemprop="description">{{content.description}}</p>
+                    {{/ifEqual}}
+
+                    {{#ifEqual type "image"}}
+                        <img itemprop="image" src="{{content.source}}" class="display-center img-responsive" alt="image"  />
+                        {{#if content.description}}
+                            <p>{{content.description}}</p>
+                        {{/if}}
+                    {{/ifEqual}}
+
+                    {{#ifEqual type "video"}}
+                    <!--For youtube embed-->
+                        <object data="{{content.source}}" class="video-height margin-left-15" width="70%" ></object>
+                        {{#if content.description}}
+                            <p itemprop="description">{{content.description}}</p>
+                        {{/if}}
+                    {{/ifEqual}}
+
+                    {{#ifEqual type "map"}}
+                        <meta itemprop="latitude" content="{{content.latitude}}" />
+                        <meta itemprop="longitude" content="{{content.longitude}}" />
+                        <div id="map-canvas" class="map-canvas" itemprop="geo">
+                            <!--here come the map-->
+                            <script type="text/javascript">
+                                myNamespace.Template.initializeMap();
+                            </script>
+                        </div>
+                        {{#if content.description}}
+                            <p itemprop="description">{{content.description}}</p>
+                        {{/if}}
+                    {{/ifEqual}}
+
+                    {{#if link}}
+                    <a itemprop="url" href="{{link}}" target="_blank" rel="alternate" >More..</a>
+                    {{/if}}
+                </div>
+                <div style="clear:both;"></div>
+            </article>
+            {{/each}}
+    </template>
+
+        <div class="wrap container-fluid col-xs-70" id="wrap">
+
+            <header id="topHeader" class="top-header">
+                <a href="about.html">
+                    <img class="col-xs-10  menu-icon" id="logo-md" src="/resources/img/logo-md.png" alt="Semantic Web Search">
+                </a>
+                <div id="toggle_parent">
+
+                    <div class="no-display" id="toggled_content">
+                        <!-- Search bar is moved here when the user starts typing-->
+                    </div><!--end toggled_content-->
+
+                    <div id="toggleHolder">
+                        <span id="togglerDisplay" class="toggler no-display">
+                            <img src="/resources/img/icons/down.png" class="lookingForWidth" alt="Click to expand" title="Click to expand">
+                        </span>
+                        <span class="toggler no-display">
+                            <img src="/resources/img/icons/up.png" class="lookingForWidth" alt="Click to collapse" title="Click to collapse">
+                        </span>
+                    </div><!--end toggleHolder-->
+
+                </div><!--end toggle_parent-->
+
+            </header>
+
+            <div class="top">
+                   <a href="about.html">
+                       <img id="SemanticWebSearchImg" class=" margin-top-xxs-10 img-responsive center-block" src="/resources/img/logo-lg.png" alt="Semantic Web Search" />
+                   </a>
+            </div>
+
+            <div id="top-search" class="search margin-top-xxs-1">
+                <form id="searchForm" class="go-right" action="/api/query" method="GET" onsubmit="return false;">
+                    <div>
+                        <input id="search" type="search" required />
+                        <label for="search" class="search-animation">Search</label>
+                    </div>
+                </form>
+                <!-- Search option-->
+                <div id="sOptions" class="row">
+                    <hr class="no-display margin-xxs-0"/>
+
+                    <!--Selects the type of the search (text/video/images/maps)-->
+                    <div id="lookFor" class=" max-width-50 float-left">
+
+                        <h5 class="margin-top-xxs-4 float-left margin-right-d">Looking for: </h5>
+
+                        <!-- Search for text-->
+                        <div class="float-left lookingForWidth margin-right-d">
+                            <input type="checkbox" name="text" value="true" checked  id="text" class="img-checkbox"/>
+                            <label for="text" class="img-responsive">
+                                <img class="img-responsive" src="/resources/img/icons/text.png" alt="Text"/>
+                                <img class="img-responsive" src="/resources/img/icons/text-selected.png" alt="Text"/>
+                            </label>
+                        </div>
+                        <!-- Search for images-->
+                        <div class="float-left lookingForWidth margin-right-d">
+                            <input type="checkbox" name="image" value="true" checked id="image" class="img-checkbox"/>
+                            <label for="image" class="img-responsive">
+                                <img class="img-responsive " src="/resources/img/icons/image.png" alt="Images"/>
+                                <img class="img-responsive" src="/resources/img/icons/image-selected.png" alt="Images"/>
+                            </label>
+                        </div>
+                        <!-- Search for videos-->
+                        <div class="float-left lookingForWidth margin-right-d">
+                            <input type="checkbox" name="video" value="true" checked id="video" class="img-checkbox"/>
+                            <label for="video" class="img-responsive">
+                                <img class="img-responsive" src="/resources/img/icons/video.png" alt="Videos"/>
+                                <img class="img-responsive" src="/resources/img/icons/video-selected.png" alt="Videos"/>
+                            </label>
+                        </div>
+                        <!-- Search for maps-->
+                        <div class="float-left lookingForWidth margin-right-d">
+                            <input type="checkbox" name="map" value="true" checked id="map" class="img-checkbox"/>
+                            <label for="map" class="img-responsive">
+                                <img class="img-responsive" src="/resources/img/icons/map.png" alt="Maps"/>
+                                <img class="img-responsive" src="/resources/img/icons/map-selected.png" alt="Maps"/>
+                            </label>
+                        </div>
+
+                        <div style="clear:both;"></div>
+                    </div><!-- end lookFor -->
+
+                    <!--Selects the display mode-->
+                    <div id="displayAs" class="no-display max-width-50 float-left">
+                        <h5 class="margin-top-xxs-4 float-left  margin-right-d">Display as: </h5>
+
+                        <div class="float-left margin-right-d lookingForWidth">
+                            <input type="checkbox" rel="/resources/css/listLayout.css" name="displayOpt" value="true" id="list" class="img-checkbox"/>
+                            <label for="list" class="img-responsive">
+                                <img class="img-responsive" src="/resources/img/icons/display-list.png" alt="list"/>
+                                <img class="img-responsive" src="/resources/img/icons/display-list-selected.png" alt="list"/>
+                            </label>
+                        </div>
+
+                        <div class="float-left margin-right-d lookingForWidth">
+                            <input type="checkbox" rel="/resources/css/gridLayout.css" name="displayOpt" value="true" id="grid" class="img-checkbox"/>
+                            <label for="grid" class="img-responsive">
+                                <img class="img-responsive" src="/resources/img/icons/display-grid.png" alt="grid"/>
+                                <img class="img-responsive" src="/resources/img/icons/display-grid-selected.png" alt="grid"/>
+                            </label>
+                        </div>
+
+                        <div style="clear:both;"></div>
+                    </div><!-- end displayAs -->
+
+                    <div style="clear:both;"></div>
+
+                    <hr class="no-display margin-xxs-0"/>
+                </div><!--end sOptions!-->
+            </div>
+
+            <main id="answers">
+
+            </main><!--end main-->
+
+        </div><!--end wrapper-->
+
+        <div id="pinAction" class="pinAction no-display">
+            <img id="prev" src="/resources/img/icons/previous.png" onclick="myNamespace.Result.previousPin()">
+            <img id="next" src="/resources/img/icons/next.png" onclick="myNamespace.Result.nextPin()">
+        </div>
+
+
+        <script src="/resources/js/lib/jquery-2.1.3.min.js"></script>
+        <script type="text/javascript" src="/resources/js/lib/handlebars-v2.0.0.js"></script>
+        <script type="text/javascript" src="/resources/js/test.js"></script>
+        <script src="/resources/js/mynamespace.js"></script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArwEElsPAq4kjt8FfBp1uq3qQ2J9yqp94">
+        </script>
+        <script>window.onload = myNamespace.Helper.initialize</script>
+
+    </body>
+</html>
