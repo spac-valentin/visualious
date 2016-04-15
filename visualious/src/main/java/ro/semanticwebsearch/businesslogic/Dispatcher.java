@@ -84,7 +84,7 @@ public class Dispatcher {
         Result result = new Result();
         ServiceResponse response = new ServiceResponse();
         queryDBPedia(searchDAO, response);
-        queryFreebase(searchDAO, response);
+        //queryFreebase(searchDAO, response);
 
         if (response.getQuestionType() != null) {
             if(question == null) {
@@ -165,6 +165,7 @@ public class Dispatcher {
         return result;
     }
 
+    @Deprecated
     private static void queryFreebase(SearchDAO searchDAO, ServiceResponse response) {
         try {
             QuepyResponse quepyResponse = queryQuepy(QueryType.MQL, searchDAO.getQuery());
