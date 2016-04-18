@@ -19,11 +19,11 @@ import ro.visualious.businesslogic.Result;
  * Created by Spac on 6/2/2015.
  */
 @Path("question/{questionId}")
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class Question {
     public static Logger log = Logger.getLogger(Question.class.getCanonicalName());
 
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Result getMoreResults(@BeanParam ResultsDAO resultsDAO) {
         if (log.isInfoEnabled()) {
             log.info("More results for : " + resultsDAO.toString());
@@ -33,7 +33,6 @@ public class Question {
 
     @POST
     @Path("{answerId}/like/{feedback}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response updateLike(@BeanParam Feedback feedback) {
         if (log.isInfoEnabled()) {
             log.info("Like for : " + feedback.getAnswerId());
@@ -47,7 +46,6 @@ public class Question {
 
     @POST
     @Path("{answerId}/dislike/{feedback}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response updateDislike(@BeanParam Feedback feedback) {
         if (log.isInfoEnabled()) {
             log.info("Dislike for : " + feedback.getAnswerId());

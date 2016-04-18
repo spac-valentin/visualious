@@ -16,11 +16,11 @@ import ro.visualious.businesslogic.Result;
  * Created by Spac on 25 Ian 2015.
  */
 @Path("query")
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public class Search {
     public static Logger log = Logger.getLogger(Search.class.getCanonicalName());
 
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Result query(@BeanParam SearchDAO searchDAO) throws Exception {
         if (log.isInfoEnabled()) {
             log.info("Search query : " + searchDAO.toString());
@@ -31,7 +31,6 @@ public class Search {
 
     @GET
     @Path("topSearches")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public java.util.List<ro.visualious.responsegenerator.model.Question> topSearches() {
         if (log.isInfoEnabled()) {
             log.info("Top searches");
