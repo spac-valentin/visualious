@@ -31,31 +31,6 @@ class WeaponParser extends AbstractParserType{
         TYPE = Constants.WEAPON;
     }
 
-    //Freebase does not contain this type of information
-    //TODO Update if this changes
-    @Override
-    public List<Answer> parseFreebaseResponse(String freebaseResponse, String questionId) {
-        if (log.isInfoEnabled()) {
-            log.info("WeaponUsedByCountryInConflict" + " : " + freebaseResponse);
-        }
-
-        if (freebaseResponse == null || freebaseResponse.trim().isEmpty()) {
-            return null;
-        }
-
-       /* try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode response = mapper.readTree(freebaseResponse).get("result");
-            if (response.isArray()) {
-                ArrayNode bindingsArray = (ArrayNode) response;
-                JsonNode aux;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
-        return null;
-    }
 
     @Override
     public List<Answer> parseDBPediaResponse(String dbpediaResponse, String questionId) {
@@ -145,17 +120,10 @@ class WeaponParser extends AbstractParserType{
             weaponInfo = mapper.readTree(weaponInfoResponse).get(dbpediaUri.toString());
 
             Weapon weapon = new Weapon();
-            aux = DBPediaPropertyExtractor.getName(weaponInfo);
-            weapon.setName(aux);
-
-            aux = DBPediaPropertyExtractor.getPrimaryTopicOf(weaponInfo);
-            weapon.setWikiPageExternal(aux);
-
-            aux = DBPediaPropertyExtractor.getAbstractDescription(weaponInfo);
-            weapon.setDescription(aux);
-
+            weapon.setName(DBPediaPropertyExtractor.getName(weaponInfo));
+            weapon.setWikiPageExternal(DBPediaPropertyExtractor.getPrimaryTopicOf(weaponInfo));
+            weapon.setDescription(DBPediaPropertyExtractor.getAbstractDescription(weaponInfo));
             weapon.setThumbnails(DBPediaPropertyExtractor.getThumbnail(weaponInfo));
-
             weapon.setLength(DBPediaPropertyExtractor.getWeaponLength(weaponInfo));
             weapon.setWeight(DBPediaPropertyExtractor.getWeaponWeight(weaponInfo));
             weapon.setService(DBPediaPropertyExtractor.getService(weaponInfo));

@@ -20,7 +20,6 @@ import ro.visualious.responsegenerator.model.Answer;
 import ro.visualious.responsegenerator.model.Conflict;
 import ro.visualious.responsegenerator.parser.helper.Constants;
 import ro.visualious.responsegenerator.parser.helper.DBPediaPropertyExtractor;
-import ro.visualious.responsegenerator.parser.helper.FreebasePropertyExtractor;
 
 /**
  * Created by Spac on 4/26/2015.
@@ -32,41 +31,6 @@ class ConflictParser extends AbstractParserType {
     }
 
     private static Logger log = Logger.getLogger(ConflictParser.class.getCanonicalName());
-
-    @Override
-    public List<Answer> parseFreebaseResponse(String freebaseResponse, String questionId) {
-        if (log.isInfoEnabled()) {
-            log.info("ConflictThatTookPlaceInCountry" + " : " + freebaseResponse);
-        }
-
-        if (freebaseResponse == null || freebaseResponse.trim().isEmpty()) {
-            return null;
-        }
-
-        ArrayList<String> conflictUris = new ArrayList<>();
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode response = mapper.readTree(freebaseResponse).get("result");
-
-            if (response.isArray()) {
-                for (JsonNode item : response) {
-                    conflictUris.add(FreebasePropertyExtractor.getFreebaseLink(FreebasePropertyExtractor.extractFreebaseId(item)));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        List<Answer> answers = new ArrayList<>();
-        List<String> listOfUris = new LinkedList<>(conflictUris);
-
-        extractFreebaseAnswers(questionId, listOfUris, answers, 0, Constants.MAX_CHUNK_SIZE);
-        new Thread(() -> extractFreebaseAnswers(questionId, listOfUris, null, Constants.MAX_CHUNK_SIZE, 0)).start();
-
-        return answers;
-    }
-
 
     @Override
     public List<Answer> parseDBPediaResponse(String dbpediaResponse, String questionId) {
@@ -108,44 +72,6 @@ class ConflictParser extends AbstractParserType {
         return answers;
     }
 
-    private Conflict freebaseConflict(URI freebaseURI) {
-        if (freebaseURI == null || freebaseURI.toString().trim().isEmpty()) {
-            return null;
-        }
-
-        try {
-            WebTarget client;
-            String personInfoResponse, aux;
-            ObjectMapper mapper = new ObjectMapper();
-
-            client = ClientBuilder.newClient().target(freebaseURI);
-            personInfoResponse = client.request().get(String.class);
-            JsonNode conflictInfo = mapper.readTree(personInfoResponse).get("property");
-
-            Conflict conflict = new Conflict();
-            aux = FreebasePropertyExtractor.getPersonName(conflictInfo);
-            conflict.setName(aux);
-
-            //conflict.setResult(FreebaseParser.getResult(conflictInfo));
-            conflict.setDate(FreebasePropertyExtractor.getEventDate(conflictInfo));
-            conflict.setWikiPageExternal(FreebasePropertyExtractor.getPrimaryTopicOf(conflictInfo));
-            conflict.setDescription(FreebasePropertyExtractor.getAbstractDescription(conflictInfo));
-            conflict.setPartOf(FreebasePropertyExtractor.getPartOf(conflictInfo));
-            conflict.setThumbnails(FreebasePropertyExtractor.getThumbnail(conflictInfo));
-
-            conflict.setPlace(FreebasePropertyExtractor.getEventLocations(conflictInfo));
-            conflict.setCommanders(FreebasePropertyExtractor.getCommanders(conflictInfo));
-            conflict.setCombatants(FreebasePropertyExtractor.getCombatants(conflictInfo));
-            conflict.setCasualties(FreebasePropertyExtractor.getCasualties(conflictInfo));
-
-            return conflict;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
     public Conflict dbpediaConflict(URI dbpediaUri) {
 
         if (dbpediaUri == null || dbpediaUri.toString().trim().isEmpty()) {
@@ -163,8 +89,7 @@ class ConflictParser extends AbstractParserType {
             conflictInfo = mapper.readTree(conflictInfoResponse).get(dbpediaUri.toString());
 
             Conflict conflict = new Conflict();
-            aux = DBPediaPropertyExtractor.getName(conflictInfo);
-            conflict.setName(aux);
+            conflict.setName(DBPediaPropertyExtractor.getName(conflictInfo));
 
             conflict.setResult(DBPediaPropertyExtractor.getResult(conflictInfo));
             conflict.setDate(DBPediaPropertyExtractor.getDate(conflictInfo));
@@ -218,36 +143,5 @@ class ConflictParser extends AbstractParserType {
         MongoDBManager.saveAnswerList(answers);
     }
 
-    private void extractFreebaseAnswers(String questionId, List<String> uris, List<Answer> answers, int offset, int max) {
-        Conflict conflict;
-        int start = 0, finish;
 
-        if(offset == 0) {
-            finish = Math.min(max, uris.size());
-        } else {
-            start = offset;
-            finish = uris.size();
-        }
-
-        if(answers == null) {
-            answers = new ArrayList<>();
-        }
-
-        for(int idx = start; idx < finish; idx++) {
-            try {
-                conflict = freebaseConflict(new URI(uris.get(idx)));
-                Answer s = Answer.getBuilderForQuestion(questionId)
-                        .setBody(conflict)
-                        .setOrigin(Constants.FREEBASE)
-                        .setType(TYPE)
-                        .build();
-                answers.add(s);
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //save in db???
-        MongoDBManager.saveAnswerList(answers);
-    }
 }

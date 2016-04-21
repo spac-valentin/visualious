@@ -2,27 +2,29 @@ package ro.visualious.responsegenerator.model;
 
 import java.util.ArrayList;
 
+import ro.visualious.responsegenerator.jsonmodel.JsonType;
+
 /**
  * Created by Spac on 4/26/2015.
  */
 public class Conflict {
-    private String name;
+    private JsonType name;
     private String result;
     private String date;
-    private String description;
+    private JsonType description;
     private ArrayList<StringPair> partOf;
-    private String wikiPageExternal;
+    private JsonType wikiPageExternal;
     private ArrayList<StringPair> place;
     private ArrayList<StringPair> commanders;
-    private ArrayList<String> thumbnails;
+    private JsonType thumbnails;
     private ArrayList<StringPair> combatants;
     private ArrayList<Casualty> casualties;
 
-    public String getName() {
+    public JsonType getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(JsonType name) {
         this.name = name;
     }
 
@@ -42,19 +44,19 @@ public class Conflict {
         this.date = date;
     }
 
-    public String getDescription() {
+    public JsonType getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(JsonType description) {
         this.description = description;
     }
 
-    public String getWikiPageExternal() {
+    public JsonType getWikiPageExternal() {
         return wikiPageExternal;
     }
 
-    public void setWikiPageExternal(String wikiPageExternal) {
+    public void setWikiPageExternal(JsonType wikiPageExternal) {
         this.wikiPageExternal = wikiPageExternal;
     }
 
@@ -74,11 +76,11 @@ public class Conflict {
         this.commanders = commanders;
     }
 
-    public ArrayList<String> getThumbnails() {
+    public JsonType getThumbnails() {
         return thumbnails;
     }
 
-    public void setThumbnails(ArrayList<String> thumbnails) {
+    public void setThumbnails(JsonType thumbnails) {
         this.thumbnails = thumbnails;
     }
 

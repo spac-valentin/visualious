@@ -1,15 +1,15 @@
 package ro.visualious.responsegenerator.model;
 
-import java.util.ArrayList;
+import ro.visualious.responsegenerator.jsonmodel.JsonType;
 
 /**
  * Created by Spac on 4/26/2015.
  */
 public class Weapon {
-    private String name;
-    private ArrayList<String> thumbnails;
-    private String description;
-    private String wikiPageExternal;
+    private JsonType name;
+    private JsonType thumbnails;
+    private JsonType description;
+    private JsonType wikiPageExternal;
     private String weight;
     private String length;
     private StringPair designer;
@@ -17,35 +17,35 @@ public class Weapon {
     private String caliber;
     private String service;
 
-    public String getName() {
+    public JsonType getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(JsonType name) {
         this.name = name;
     }
 
-    public ArrayList<String> getThumbnails() {
+    public JsonType getThumbnails() {
         return thumbnails;
     }
 
-    public void setThumbnails(ArrayList<String> thumbnails) {
+    public void setThumbnails(JsonType thumbnails) {
         this.thumbnails = thumbnails;
     }
 
-    public String getDescription() {
+    public JsonType getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(JsonType description) {
         this.description = description;
     }
 
-    public String getWikiPageExternal() {
+    public JsonType getWikiPageExternal() {
         return wikiPageExternal;
     }
 
-    public void setWikiPageExternal(String wikiPageExternal) {
+    public void setWikiPageExternal(JsonType wikiPageExternal) {
         this.wikiPageExternal = wikiPageExternal;
     }
 

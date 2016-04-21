@@ -18,11 +18,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ro.visualious.persistence.MongoDBManager;
+import ro.visualious.responsegenerator.jsonmodel.JsonType;
 import ro.visualious.responsegenerator.model.Answer;
 import ro.visualious.responsegenerator.model.Person;
 import ro.visualious.responsegenerator.parser.helper.Constants;
 import ro.visualious.responsegenerator.parser.helper.DBPediaPropertyExtractor;
-import ro.visualious.responsegenerator.parser.helper.FreebasePropertyExtractor;
 
 /**
  * Created by Spac on 4/18/2015.
@@ -109,124 +109,6 @@ class PersonParser extends AbstractParserType {
         MongoDBManager.saveAnswerList(answers);
     }
 
-    @Override
-    public List<Answer> parseFreebaseResponse(String freebaseResponse, String questionId) {
-        String extractedUri;
-        Set<String> uris = new HashSet<>();
-
-        List<Answer> answers = new ArrayList<>();
-        //region extract uri from freebase
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode results = mapper.readTree(freebaseResponse).get("result");
-            if (results.isArray()) {
-                for (JsonNode item : results) {
-                    extractedUri = FreebasePropertyExtractor.getFreebaseLink(FreebasePropertyExtractor.extractFreebaseId(item));
-                    if (extractedUri != null && !extractedUri.trim().isEmpty()) {
-                        uris.add(extractedUri);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //endregion
-
-        List<String> listOfUris = new LinkedList<>(uris);
-        extractFreebaseAnswers(questionId, listOfUris, answers, 0, Constants.MAX_CHUNK_SIZE);
-        new Thread(() -> extractFreebaseAnswers(questionId, listOfUris, null, Constants.MAX_CHUNK_SIZE, 0)).start();
-
-        return answers;
-    }
-
-    private void extractFreebaseAnswers(String questionId, List<String> uris, List<Answer> answers, int offset, int max) {
-        Person person;
-        int start = 0, finish;
-
-        if(offset == 0) {
-            finish = Math.min(max, uris.size());
-        } else {
-            start = offset;
-            finish = uris.size();
-        }
-
-        if(answers == null) {
-            answers = new ArrayList<>();
-        }
-
-        for(int idx = start; idx < finish; idx++) {
-            try {
-                person = freebaseWhoIs(new URI(uris.get(idx)));
-                Answer s = Answer.getBuilderForQuestion(questionId)
-                        .setBody(person)
-                        .setOrigin(Constants.FREEBASE)
-                        .setType(TYPE)
-                        .build();
-                answers.add(s);
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //save in db???
-        MongoDBManager.saveAnswerList(answers);
-    }
-
-    public Person freebaseWhoIs(URI freebaseURI) {
-        if (freebaseURI == null || freebaseURI.toString().trim().isEmpty()) {
-            return null;
-        }
-
-        try {
-            WebTarget client;
-            String personInfoResponse, aux;
-            ObjectMapper mapper = new ObjectMapper();
-
-            client = ClientBuilder.newClient().target(freebaseURI);
-            personInfoResponse = client.request().get(String.class);
-            JsonNode personInfo = mapper.readTree(personInfoResponse).get("property");
-
-            Person person = new Person();
-            aux = FreebasePropertyExtractor.getPersonName(personInfo);
-            person.setName(aux);
-
-            aux = FreebasePropertyExtractor.getBirthdate(personInfo);
-            person.setBirthdate(aux);
-
-            aux = FreebasePropertyExtractor.getDeathdate(personInfo);
-            person.setDeathdate(aux);
-
-            person.setBirthplace(FreebasePropertyExtractor.getBirthplace(personInfo));
-
-            aux = FreebasePropertyExtractor.getAbstractDescription(personInfo);
-            person.setDescription(aux);
-
-            aux = FreebasePropertyExtractor.getShortDescription(personInfo);
-            person.setShortDescription(aux);
-
-            person.setThumbnails(FreebasePropertyExtractor.getThumbnail(personInfo));
-
-            aux = FreebasePropertyExtractor.getPrimaryTopicOf(personInfo);
-            person.setWikiPageExternal(aux);
-
-            person.setEducation(FreebasePropertyExtractor.getEducation(personInfo));
-            person.setNationality(FreebasePropertyExtractor.getNationality(personInfo));
-
-            person.setParents(FreebasePropertyExtractor.getParents(personInfo));
-
-            person.setSpouse(FreebasePropertyExtractor.getSpouse(personInfo));
-            person.setChildren(FreebasePropertyExtractor.getChildren(personInfo));
-
-            person.setNotableFor(FreebasePropertyExtractor.getNotableFor(personInfo));
-            person.setSiblings(FreebasePropertyExtractor.getPersonSiblings(personInfo));
-
-            return person;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
 
     public Person dbpediaWhoIs(URI dbpediaUri) {
         if (dbpediaUri == null || dbpediaUri.toString().trim().isEmpty()) {
@@ -235,7 +117,7 @@ class PersonParser extends AbstractParserType {
 
         try {
             WebTarget client;
-            String personInfoResponse, aux;
+            String personInfoResponse;
             JsonNode personInfo;
             ObjectMapper mapper = new ObjectMapper();
 
@@ -245,26 +127,15 @@ class PersonParser extends AbstractParserType {
             personInfo = response.get(dbpediaUri.toString());
 
             Person person = new Person();
-            aux = DBPediaPropertyExtractor.getName(personInfo);
-            person.setName(aux);
+            JsonType resp= DBPediaPropertyExtractor.getName(personInfo);
+            person.setName(resp);
 
-            aux = DBPediaPropertyExtractor.getBirthdate(personInfo);
-            person.setBirthdate(aux);
-
-            aux = DBPediaPropertyExtractor.getDeathdate(personInfo);
-            person.setDeathdate(aux);
-
+            person.setBirthdate(DBPediaPropertyExtractor.getBirthdate(personInfo));
+            person.setDeathdate(DBPediaPropertyExtractor.getDeathdate(personInfo));
             person.setBirthplace(DBPediaPropertyExtractor.getBirthplace(personInfo));
-
-            aux = DBPediaPropertyExtractor.getAbstractDescription(personInfo);
-            person.setDescription(aux);
-
-            aux = DBPediaPropertyExtractor.getShortDescription(personInfo);
-            person.setShortDescription(aux);
-
-            aux = DBPediaPropertyExtractor.getPrimaryTopicOf(personInfo);
-            person.setWikiPageExternal(aux);
-
+            person.setDescription(DBPediaPropertyExtractor.getAbstractDescription(personInfo));
+            person.setShortDescription(DBPediaPropertyExtractor.getShortDescription(personInfo));
+            person.setWikiPageExternal(DBPediaPropertyExtractor.getPrimaryTopicOf(personInfo));
             person.setEducation(DBPediaPropertyExtractor.getEducation(personInfo));
             person.setNationality(DBPediaPropertyExtractor.getNationality(personInfo));
 

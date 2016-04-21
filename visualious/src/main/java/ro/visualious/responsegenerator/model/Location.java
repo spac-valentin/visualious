@@ -2,14 +2,16 @@ package ro.visualious.responsegenerator.model;
 
 import java.util.ArrayList;
 
+import ro.visualious.responsegenerator.jsonmodel.JsonType;
+
 /**
  * Created by Spac on 4/22/2015.
  */
 public class Location {
-    private String name;
-    private String description;
-    private ArrayList<String> thumbnails;
-    private String wikiPageExternal;
+    private JsonType name;
+    private JsonType description;
+    private JsonType thumbnails;
+    private JsonType wikiPageExternal;
     private StringPair capital;
     private String officialLanguage;
     private String currency;
@@ -20,35 +22,35 @@ public class Location {
     private String dateFounded;
     private String population;
 
-    public String getName() {
+    public JsonType getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(JsonType name) {
         this.name = name;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(JsonType description) {
         this.description = description;
     }
 
-    public String getDescription() {
+    public JsonType getDescription() {
         return description;
     }
 
-    public void setThumbnails(ArrayList<String> thumbnails) {
+    public void setThumbnails(JsonType thumbnails) {
         this.thumbnails = thumbnails;
     }
 
-    public ArrayList<String> getThumbnails() {
+    public JsonType getThumbnails() {
         return thumbnails;
     }
 
-    public void setWikiPageExternal(String wikiPageExternal) {
+    public void setWikiPageExternal(JsonType wikiPageExternal) {
         this.wikiPageExternal = wikiPageExternal;
     }
 
-    public String getWikiPageExternal() {
+    public JsonType getWikiPageExternal() {
         return wikiPageExternal;
     }
 

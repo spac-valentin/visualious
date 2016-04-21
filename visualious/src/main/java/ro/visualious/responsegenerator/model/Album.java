@@ -2,40 +2,42 @@ package ro.visualious.responsegenerator.model;
 
 import java.util.ArrayList;
 
+import ro.visualious.responsegenerator.jsonmodel.JsonType;
+
 /**
  * Created by Spac on 5/3/2015.
  */
 public class Album {
-    private String name;
-    private ArrayList<String> thumbnails;
+    private JsonType name;
+    private JsonType thumbnails;
     private ArrayList<StringPair> trackList;
-    private String wikiPageExternalLink;
+    private JsonType wikiPageExternalLink;
     private String description;
     private String length;
     private String releaseDate;
     private String genre;
 
-    public String getName() {
+    public JsonType getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(JsonType name) {
         this.name = name;
     }
 
-    public void setThumbnails(ArrayList<String> thumbnails) {
+    public void setThumbnails(JsonType thumbnails) {
         this.thumbnails = thumbnails;
     }
 
-    public ArrayList<String> getThumbnails() {
+    public JsonType getThumbnails() {
         return thumbnails;
     }
 
-    public void setWikiPageExternalLink(String wikiPageExternalLink) {
+    public void setWikiPageExternalLink(JsonType wikiPageExternalLink) {
         this.wikiPageExternalLink = wikiPageExternalLink;
     }
 
-    public String getWikiPageExternalLink() {
+    public JsonType getWikiPageExternalLink() {
         return wikiPageExternalLink;
     }
 

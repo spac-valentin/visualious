@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import ro.visualious.responsegenerator.jsonmodel.JsonArray;
+import ro.visualious.responsegenerator.jsonmodel.JsonObject;
+import ro.visualious.responsegenerator.jsonmodel.JsonString;
+import ro.visualious.responsegenerator.jsonmodel.JsonType;
 import ro.visualious.responsegenerator.model.Geolocation;
 import ro.visualious.responsegenerator.model.StringPair;
 
@@ -13,117 +17,150 @@ import ro.visualious.responsegenerator.model.StringPair;
  */
 public class DBPediaPropertyExtractor {
 
-    public static ArrayList<StringPair> getChildren(JsonNode personInfo) {
-        ArrayList<StringPair> children = new ArrayList<>();
+    public static JsonObject getChildren(JsonNode personInfo) {
+        JsonArray array = new JsonArray();
+
         ArrayNode childrenArray = (ArrayNode) personInfo.get(MetadataProperties.CHILDREN.getDbpedia());
         if (childrenArray != null) {
             for (JsonNode child : childrenArray) {
                 if (isLiteral(child)) {
-                    children.add(new StringPair("", extractValue(child.get("value"))));
+                    //children.add(new StringPair("", extractValue(child.get("value"))));
+                    JsonObject ss = getJsonObjectValueSeeAlso( extractValue(child.get("value")), "");
+                    array.addValue(ss);
                 } else if (isUri(child)) {
                     String uri = extractValue(child.get("value"));
                     String[] pieces = uri.split("/");
                     String spouseName = pieces[pieces.length - 1];
-                    children.add(new StringPair(getLink(AdditionalQuestion.WHO_IS,
-                            spouseName.replace("_", " ")), spouseName.replace("_", " ")));
+
+                    JsonObject ss = getJsonObjectValueSeeAlso(
+                                    spouseName.replace("_", " "),
+                                    getLink(AdditionalQuestion.WHO_IS,spouseName.replace("_", " ")));
+                    array.addValue(ss);
                 }
             }
         }
 
-        return children;
+        return getJsonObject(MetadataProperties.CHILDREN, array);
 
     }
 
-    public static ArrayList<StringPair> getSpouse(JsonNode personInfo) {
-        ArrayList<StringPair> parents = new ArrayList<>();
+    public static JsonType getSpouse(JsonNode personInfo) {
+        JsonArray array = new JsonArray();
+
         ArrayNode spouses = (ArrayNode) personInfo.get(MetadataProperties.SPOUSE.getDbpedia());
         if (spouses != null) {
             for (JsonNode spouse : spouses) {
                 if (isLiteral(spouse)) {
-                    parents.add(new StringPair("", extractValue(spouse.get("value"))));
+                    JsonObject ss = getJsonObjectValueSeeAlso( extractValue(spouse.get("value")), "");
+                    array.addValue(ss);
                 } else if (isUri(spouse)) {
                     String uri = extractValue(spouse.get("value"));
                     String[] pieces = uri.split("/");
                     String spouseName = pieces[pieces.length - 1];
-                    parents.add(new StringPair(getLink(AdditionalQuestion.WHO_IS,
-                            spouseName.replace("_", " ")), spouseName.replace("_", " ")));
+                   /* parents.add(new StringPair(getLink(AdditionalQuestion.WHO_IS,
+                            spouseName.replace("_", " ")), spouseName.replace("_", " ")));*/
+
+                    JsonObject ss = getJsonObjectValueSeeAlso(
+                            spouseName.replace("_", " "),
+                            getLink(AdditionalQuestion.WHO_IS,spouseName.replace("_", " ")));
+                    array.addValue(ss);
                 }
             }
         }
 
-        return parents;
+        return getJsonObject(MetadataProperties.SPOUSE, array);
 
     }
 
-    public static ArrayList<String> getThumbnail(JsonNode personInfo) {
-        ArrayList<String> thumbs = new ArrayList<>();
+    public static JsonObject getThumbnail(JsonNode personInfo) {
+        JsonArray array = new JsonArray();
+
         ArrayNode thumbnails = (ArrayNode) personInfo.get(MetadataProperties.THUMBNAIL.getDbpedia());
         if (thumbnails != null) {
             for (JsonNode thumbnail : thumbnails) {
                 if (isUri(thumbnail)) {
-                    thumbs.add(extractValue(thumbnail.get("value")));
+                    array.addValue(extractValue(thumbnail.get("value")));
+                    break;
                 }
             }
         }
-        return thumbs;
+
+        return getJsonObject(MetadataProperties.THUMBNAIL, array);
 
     }
 
-    public static ArrayList<StringPair> getParents(JsonNode personInfo) {
-        ArrayList<StringPair> parents = new ArrayList<>();
+    public static JsonType getParents(JsonNode personInfo) {
+        JsonArray array = new JsonArray();
+
         ArrayNode parentsArray = (ArrayNode) personInfo.get(MetadataProperties.PARENTS.getDbpedia());
         if (parentsArray != null) {
             for (JsonNode parent : parentsArray) {
                 if (isLiteral(parent)) {
-                    parents.add(new StringPair("", extractValue(parent.get("value"))));
+
+                    JsonObject ss = getJsonObjectValueSeeAlso( extractValue(parent.get("value")), "");
+                    array.addValue(ss);
                 } else if (isUri(parent)) {
                     String uri = extractValue(parent.get("value"));
                     String[] pieces = uri.split("/");
                     String parentName = pieces[pieces.length - 1];
-                    parents.add(new StringPair(getLink(AdditionalQuestion.WHO_IS,
-                            parentName.replace("_", " ")), parentName.replace("_", " ")));
+
+                    JsonObject ss = getJsonObjectValueSeeAlso(
+                            parentName.replace("_", " "),
+                            getLink(AdditionalQuestion.WHO_IS,parentName.replace("_", " ")));
+                    array.addValue(ss);
                 }
             }
         }
 
-        return parents;
+        return getJsonObject(MetadataProperties.PARENTS, array);
 
     }
 
-    public static ArrayList<StringPair> getNationality(JsonNode personInfo) {
-        ArrayList<StringPair> nationalitiesArray = new ArrayList<>();
+    public static JsonType getNationality(JsonNode personInfo) {
+        JsonArray array = new JsonArray();
+
         ArrayNode nationalities = (ArrayNode) personInfo.get(MetadataProperties.NATIONALITY.getDbpedia());
         if (nationalities != null) {
             for (JsonNode nationality : nationalities) {
                 if (isLiteral(nationality)) {
-                    nationalitiesArray.add(new StringPair("", extractValue(nationality.get("value"))));
+                    JsonObject ss = getJsonObjectValueSeeAlso( extractValue(nationality.get("value")), "");
+                    array.addValue(ss);
                 } else if (isUri(nationality)) {
                     String uri = extractValue(nationality.get("value"));
                     String[] pieces = uri.split("/");
                     String name = pieces[pieces.length - 1];
-                    nationalitiesArray.add(new StringPair(uri, name.replace("_", " ")));
+
+                    JsonObject ss = getJsonObjectValueSeeAlso( name.replace("_", " "), uri);
+                    array.addValue(ss);
                 }
             }
         }
 
-        return nationalitiesArray;
+        return getJsonObject(MetadataProperties.NATIONALITY, array);
 
     }
 
-    public static ArrayList<StringPair> getEducation(JsonNode personInfo) {
+    public static JsonType getEducation(JsonNode personInfo) {
+        JsonArray array = new JsonArray();
+
         ArrayNode educations = (ArrayNode) personInfo.get(MetadataProperties.EDUCATION_ONTOLOGY.getDbpedia());
-        ArrayList<StringPair> institutions = new ArrayList<>();
+
         if (educations != null) {
             for (JsonNode educationNode : educations) {
                 if (isLiteral(educationNode)) {
-                    institutions.add(FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.EDUCATION_INFO,
-                            educationNode.get("value")));
+                    StringPair pair = extractStringPair(AdditionalQuestion.EDUCATION_INFO,
+                            educationNode.get("value"));
+
+                    JsonObject ss = getJsonObjectValueSeeAlso( pair.getValue(), pair.getKey());
+                    array.addValue(ss);
                 } else if (isUri(educationNode)) {
                     String uri = extractValue(educationNode.get("value"));
                     String[] pieces = uri.split("/");
                     String education = pieces[pieces.length - 1];
-                    institutions.add(FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.EDUCATION_INFO,
-                            education.replace("_", " ")));
+                    StringPair pair = extractStringPair(AdditionalQuestion.EDUCATION_INFO,
+                            education.replace("_", " "));
+                    JsonObject ss = getJsonObjectValueSeeAlso( pair.getValue(), pair.getKey());
+                    array.addValue(ss);
                 }
             }
         }
@@ -132,107 +169,175 @@ public class DBPediaPropertyExtractor {
         if (educations != null) {
             for (JsonNode educationNode : educations) {
                 if (isLiteral(educationNode)) {
-                    institutions.add(new StringPair("", extractValue(educationNode.get("value"))));
+                    JsonObject ss = getJsonObjectValueSeeAlso( extractValue(educationNode.get("value")), "");
+                    array.addValue(ss);
                 } else if (isUri(educationNode)) {
                     String uri = extractValue(educationNode.get("value"));
                     String[] pieces = uri.split("/");
                     String education = pieces[pieces.length - 1];
-                    institutions.add(FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.EDUCATION_INFO,
-                            education.replace("_", " ")));
+                    StringPair pair =  extractStringPair(AdditionalQuestion.EDUCATION_INFO,
+                            education.replace("_", " "));
+
+                    JsonObject ss = getJsonObjectValueSeeAlso( pair.getValue(), pair.getKey());
+                    array.addValue(ss);
                 }
             }
         }
 
-        return institutions;
+        return getJsonObject(MetadataProperties.EDUCATION_ONTOLOGY, array);
 
     }
 
-    public static String getPrimaryTopicOf(JsonNode personInfo) {
+    public static JsonObject getPrimaryTopicOf(JsonNode personInfo) {
+        String value = null;
         ArrayNode topics = (ArrayNode) personInfo.get(MetadataProperties.PRIMARY_TOPIC_OF.getDbpedia());
         if (topics != null) {
             for (JsonNode topic : topics) {
                 if (isUri(topic)) {
-                    return extractValue(topic.get("value"));
+                    value = extractValue(topic.get("value"));
+                    break;
                 }
             }
         }
-        return "";
+        return getJsonObject(MetadataProperties.PRIMARY_TOPIC_OF, value);
     }
 
-    public static String getShortDescription(JsonNode personInfo) {
+    public static JsonObject getShortDescription(JsonNode personInfo) {
+        String value = null;
+
         ArrayNode descriptions = (ArrayNode) personInfo.get(MetadataProperties.SHORT_DESCRIPTION.getDbpedia());
         if (descriptions != null) {
             for (JsonNode description : descriptions) {
                 if (isLiteral(description)) {
-                    return extractValue(description.get("value"));
+                    value = extractValue(description.get("value"));
+                    break;
                 }
             }
         }
-        return "";
+        return getJsonObject(MetadataProperties.SHORT_DESCRIPTION, value);
     }
 
-    public static String getAbstractDescription(JsonNode personInfo) {
+    public static JsonType getAbstractDescription(JsonNode personInfo) {
+        String value = null;
         ArrayNode descriptions = (ArrayNode) personInfo.get(MetadataProperties.ABSTRACT.getDbpedia());
         if (descriptions != null) {
             for (JsonNode abstractDescription : descriptions) {
                 if (isLiteral(abstractDescription) && isEN(abstractDescription)) {
-                    return extractValue(abstractDescription.get("value"));
+                    value = extractValue(abstractDescription.get("value"));
+                    break;
                 }
             }
 
             for (JsonNode abstractDescription : descriptions) {
                 if (isLiteral(abstractDescription)/* && isEN(abstractDescription)*/) {
-                    return extractValue(abstractDescription.get("value"));
+                    value = extractValue(abstractDescription.get("value"));
+                    break;
                 }
             }
         }
-        return "";
+
+        return getJsonObject(MetadataProperties.ABSTRACT, value);
     }
 
-    public static String getDeathdate(JsonNode personInfo) {
+    public static JsonType getDeathdate(JsonNode personInfo) {
+        String value = null;
         ArrayNode dates = (ArrayNode) personInfo.get(MetadataProperties.DEATHDATE.getDbpedia());
         if (dates != null) {
             for (JsonNode deathDate : dates) {
                 if (isLiteral(deathDate)) {
-                    return extractValue(deathDate.get("value"));
+                    value =extractValue(deathDate.get("value"));
+                    break;
                 }
             }
         }
-        return "";
+
+        return getJsonObject(MetadataProperties.ABSTRACT, value);
     }
 
-    public static StringPair getBirthplace(JsonNode personInfo) {
+    public static JsonObject getBirthplace(JsonNode personInfo) {
+        JsonObject result = null;
+
         ArrayNode places = (ArrayNode) personInfo.get(MetadataProperties.BIRTHPLACE.getDbpedia());
         if (places != null) {
             for (JsonNode birthplace : places) {
                 if (isLiteral(birthplace)) {
-                    return new StringPair("", extractValue(birthplace.get("value")));
+                    result = getJsonObject(MetadataProperties.BIRTHPLACE, extractValue(birthplace.get("value")));
+                    break;
                 } else if (isUri(birthplace)) {
                     String uri = extractValue(birthplace.get("value"));
                     String[] pieces = uri.split("/");
                     String birthPlace = pieces[pieces.length - 1];
-                    return FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.LOCATION_INFO,
+
+                    StringPair pair = extractStringPair(AdditionalQuestion.LOCATION_INFO,
                             birthPlace.replace("_", " "));
+
+                    result = getJsonObjectWithSeeAlso(MetadataProperties.BIRTHPLACE, pair.getValue(), pair.getKey());
+                    break;
+
                 }
             }
         }
-        return null;
+        return result;
     }
 
-    public static String getBirthdate(JsonNode personInfo) {
+    private static JsonObject getJsonObjectWithSeeAlso(MetadataProperties predicateName, String predicateValue, String seeAlsoValue) {
+        JsonObject obj = new JsonObject();
+        /*seeAlso.addProperty("predicate", MetadataProperties.SEE_ALSO.getDbpedia());
+        seeAlso.addProperty("value", seeAlsoValue);
+
+        JsonObject realObj = new JsonObject();
+        realObj.addProperty("predicate", predicateName.getDbpedia());
+        realObj.addProperty("value", predicateValue);
+        realObj.addProperty("seeAlso", seeAlso);
+        return realObj;*/
+
+        obj = getJsonObjectValueSeeAlso(predicateValue, seeAlsoValue);
+        obj.addProperty("predicate", predicateName.getDbpedia());
+
+        return obj;
+    }
+
+    private static JsonObject getJsonObjectValueSeeAlso(String predicateValue, String seeAlsoValue) {
+        JsonObject seeAlso = new JsonObject();
+        seeAlso.addProperty("predicate", MetadataProperties.SEE_ALSO.getDbpedia());
+        seeAlso.addProperty("value", seeAlsoValue);
+
+        JsonObject realObj = new JsonObject();
+        realObj.addProperty("value", predicateValue);
+        realObj.addProperty("seeAlso", seeAlso);
+        return realObj;
+    }
+
+    private static JsonObject getJsonObject(MetadataProperties predicateName, String predicateValue) {
+         return getJsonObject(predicateName, new JsonString(predicateValue));
+    }
+
+    private static JsonObject getJsonObject(MetadataProperties predicateName, JsonType predicateValue) {
+        JsonObject realObj = new JsonObject();
+        realObj.addProperty("predicate", predicateName.getDbpedia());
+        realObj.addProperty("value", predicateValue);
+
+        return realObj;
+    }
+
+    public static JsonObject getBirthdate(JsonNode personInfo) {
+        String value = null;
+
         ArrayNode dates = (ArrayNode) personInfo.get(MetadataProperties.BIRTHDATE.getDbpedia());
         if (dates != null) {
             for (JsonNode birthdate : dates) {
                 if (isLiteral(birthdate)) {
-                    return extractValue(birthdate.get("value"));
+                    value = extractValue(birthdate.get("value"));
+                    break;
                 }
             }
         }
-        return "";
+        return getJsonObject(MetadataProperties.BIRTHDATE , value);
     }
 
     //TODO should we add also check for label?
-    public static String getName(JsonNode personInfo) {
+    public static JsonObject getName(JsonNode personInfo) {
+
         ArrayNode names = (ArrayNode) personInfo.get(MetadataProperties.NAME.getDbpedia());
         StringBuilder sb = new StringBuilder();
         if (names != null) {
@@ -245,8 +350,11 @@ public class DBPediaPropertyExtractor {
         if (sb.length() > 3) {
             sb.replace(sb.length() - 3, sb.length() - 1, "");
         }
-        return sb.toString().trim();
+
+        return getJsonObject(MetadataProperties.NAME, sb.toString().trim());
     }
+
+
 
     /**
      * Given the json node, extracts the value and removes the "
@@ -417,13 +525,13 @@ public class DBPediaPropertyExtractor {
         if (names != null) {
             for (JsonNode name : names) {
                 if (isLiteral(name)) {
-                    places.add(FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.LOCATION_INFO,
+                    places.add(extractStringPair(AdditionalQuestion.LOCATION_INFO,
                             name.get("value")));
                 } else if (isUri(name)) {
                     String uri = extractValue(name.get("value"));
                     String[] pieces = uri.split("/");
                     String birthPlace = pieces[pieces.length - 1];
-                    places.add(FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.LOCATION_INFO,
+                    places.add(extractStringPair(AdditionalQuestion.LOCATION_INFO,
                             birthPlace.replace("_", " ")));
                 }
             }
@@ -461,14 +569,14 @@ public class DBPediaPropertyExtractor {
         if (parentsArray != null) {
             for (JsonNode parent : parentsArray) {
                 if (isLiteral(parent)) {
-                    commanders.add(FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.WHO_IS,
+                    commanders.add(extractStringPair(AdditionalQuestion.WHO_IS,
                             parent.get("value")));
                 } else if (isUri(parent)) {
                     String uri = extractValue(parent.get("value"));
                     String[] pieces = uri.split("/");
                     String parentName = pieces[pieces.length - 1];
                     //TODO better get the name from uri
-                    commanders.add(FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.WHO_IS,
+                    commanders.add(extractStringPair(AdditionalQuestion.WHO_IS,
                             parentName.replace("_", " ")));
                 }
             }
@@ -483,14 +591,14 @@ public class DBPediaPropertyExtractor {
         if (parentsArray != null) {
             for (JsonNode parent : parentsArray) {
                 if (isLiteral(parent)) {
-                    commanders.add(FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.LOCATION_INFO,
+                    commanders.add(extractStringPair(AdditionalQuestion.LOCATION_INFO,
                             parent.get("value")));
                 } else if (isUri(parent)) {
                     String uri = extractValue(parent.get("value"));
                     String[] pieces = uri.split("/");
                     String parentName = pieces[pieces.length - 1];
                     //TODO better get the name from uri
-                    commanders.add(FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.LOCATION_INFO,
+                    commanders.add(extractStringPair(AdditionalQuestion.LOCATION_INFO,
                             parentName.replace("_", " ")));
                 }
             }
@@ -591,13 +699,13 @@ public class DBPediaPropertyExtractor {
         if (childrenArray != null) {
             for (JsonNode child : childrenArray) {
                 if (isLiteral(child)) {
-                    return FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.LOCATION_INFO,
+                    return extractStringPair(AdditionalQuestion.LOCATION_INFO,
                             child.get("value"));
                 } else if (isUri(child)) {
                     String uri = extractValue(child.get("value"));
                     String[] pieces = uri.split("/");
                     String spouseName = pieces[pieces.length - 1];
-                    return FreebasePropertyExtractor.extractStringPair(AdditionalQuestion.LOCATION_INFO,
+                    return extractStringPair(AdditionalQuestion.LOCATION_INFO,
                             spouseName.replace("_", " "));
                 }
             }
@@ -712,7 +820,7 @@ public class DBPediaPropertyExtractor {
         return sb.toString().trim();
     }
 
-    public static ArrayList<StringPair> getPersonSiblings(JsonNode response) {
+    public static JsonType getPersonSiblings(JsonNode response) {
         /*
         * Problema: formatul json`ului: entitatea(sibling) e cheie ce are ca prop persoana
         * nu pot lua parintele
@@ -733,5 +841,15 @@ public class DBPediaPropertyExtractor {
         * */
         return null;
 
+    }
+
+
+    public static StringPair extractStringPair(AdditionalQuestion question, JsonNode node) {
+        String extractedValue = DBPediaPropertyExtractor.extractValue(node);
+        return new StringPair(DBPediaPropertyExtractor.getLink(question, extractedValue), extractedValue);
+    }
+
+    public static StringPair extractStringPair(AdditionalQuestion question, String node) {
+        return new StringPair(DBPediaPropertyExtractor.getLink(question, node), node);
     }
 }

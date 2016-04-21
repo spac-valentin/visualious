@@ -22,6 +22,7 @@ public enum MetadataProperties {
     EDUCATIONAL_INSTITUTION("", "/education/education/institution"),
     STUDENTS_GRADUATES("", "/education/educational_institution/students_graduates"),
     STUDENT("", "/education/education/student"),
+    SEE_ALSO("https://www.w3.org/TR/rdf-schema/seeAlso", ""),
     DEGREE("", "/education/education/degree"),
     WEAPON_LENGTH("http://dbpedia.org/ontology/Weapon/length", ""),
     WEAPON_WEIGHT("http://dbpedia.org/ontology/Weapon/weight", ""),

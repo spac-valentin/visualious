@@ -17,7 +17,6 @@ import ro.visualious.responsegenerator.model.Answer;
 import ro.visualious.responsegenerator.model.Location;
 import ro.visualious.responsegenerator.parser.helper.Constants;
 import ro.visualious.responsegenerator.parser.helper.DBPediaPropertyExtractor;
-import ro.visualious.responsegenerator.parser.helper.FreebasePropertyExtractor;
 
 /**
  * Created by Spac on 5/2/2015.
@@ -28,84 +27,6 @@ class LocationParser extends AbstractParserType  {
         TYPE = Constants.LOCATION;
     }
 
-    @Override
-    public List<Answer> parseFreebaseResponse(String freebaseResponse, String questionId) {
-        String extractedUri = "";
-        //region extract uri from freebase
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode results = mapper.readTree(freebaseResponse).get("result");
-            if (results.isArray()) {
-                for (JsonNode item : results) {
-                    extractedUri = FreebasePropertyExtractor.getFreebaseLink(FreebasePropertyExtractor.extractFreebaseId(item));
-                    if (extractedUri != null && !extractedUri.trim().isEmpty()) {
-                        break;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //endregion
-        Location aux;
-        List<Answer> locations = new ArrayList<>();
-        if (extractedUri != null && !extractedUri.trim().isEmpty()) {
-            try {
-                aux = freebaseLocation(new URI(extractedUri));
-                if(aux != null) {
-                    Answer s = Answer.getBuilderForQuestion(questionId)
-                            .setBody(aux)
-                            .setOrigin(Constants.FREEBASE)
-                            .setType(TYPE)
-                            .build();
-                    locations.add(s);
-
-                    MongoDBManager.saveAnswerList(locations);
-                }
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return locations;
-    }
-
-    private Location freebaseLocation(URI freebaseURI) {
-        if (freebaseURI == null || freebaseURI.toString().trim().isEmpty()) {
-            return null;
-        }
-
-        try {
-            WebTarget client;
-            String locationInfoResponse, aux;
-            ObjectMapper mapper = new ObjectMapper();
-
-            client = ClientBuilder.newClient().target(freebaseURI);
-            locationInfoResponse = client.request().get(String.class);
-            JsonNode locationInfo = mapper.readTree(locationInfoResponse).get("property");
-
-            Location location = new Location();
-            aux = FreebasePropertyExtractor.getPersonName(locationInfo);
-            location.setName(aux);
-            location.setDescription(FreebasePropertyExtractor.getAbstractDescription(locationInfo));
-            location.setThumbnails(FreebasePropertyExtractor.getThumbnail(locationInfo));
-            location.setWikiPageExternal(FreebasePropertyExtractor.getPrimaryTopicOf(locationInfo));
-            location.setCapital(FreebasePropertyExtractor.getCapital(locationInfo));
-            location.setOfficialLanguage(FreebasePropertyExtractor.getOfficialLanguage(locationInfo));
-            location.setCurrency(FreebasePropertyExtractor.getCurrency(locationInfo));
-            location.setCallingCode(FreebasePropertyExtractor.getCallingCode(locationInfo));
-            location.setGeolocation(FreebasePropertyExtractor.getGeolocation(locationInfo));
-            location.setArea(FreebasePropertyExtractor.getArea(locationInfo));
-            location.setReligions(FreebasePropertyExtractor.getReligions(locationInfo));
-            location.setDateFounded(FreebasePropertyExtractor.getDateFounded(locationInfo));
-            location.setPopulation(FreebasePropertyExtractor.getPopulation(locationInfo));
-
-            return location;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     @Override
     public List<Answer> parseDBPediaResponse(String dbpediaResponse, String questionId) {
@@ -177,8 +98,7 @@ class LocationParser extends AbstractParserType  {
             locationInfo = mapper.readTree(locationInfoResponse).get(dbpediaUri.toString());
 
             Location location = new Location();
-            aux = DBPediaPropertyExtractor.getName(locationInfo);
-            location.setName(aux);
+            location.setName(DBPediaPropertyExtractor.getName(locationInfo));
 
             location.setDescription(DBPediaPropertyExtractor.getAbstractDescription(locationInfo));
             location.setThumbnails(DBPediaPropertyExtractor.getThumbnail(locationInfo));

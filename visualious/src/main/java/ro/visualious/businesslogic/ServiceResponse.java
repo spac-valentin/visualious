@@ -5,7 +5,6 @@ package ro.visualious.businesslogic;
  */
 public class ServiceResponse {
     private String dbpediaResponse;
-    private String freebaseResponse;
     private String questionType;
 
     public String getDbpediaResponse() {
@@ -16,13 +15,7 @@ public class ServiceResponse {
         this.dbpediaResponse = dbpediaResponse;
     }
 
-    public String getFreebaseResponse() {
-        return freebaseResponse;
-    }
 
-    public void setFreebaseResponse(String freebaseResponse) {
-        this.freebaseResponse = freebaseResponse;
-    }
 
     public String getQuestionType() {
         return questionType;
@@ -35,7 +28,7 @@ public class ServiceResponse {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("ServiceResponse : [ dbpedia: ");
-        sb.append(dbpediaResponse).append(";\n freebase : ").append(freebaseResponse)
+        sb.append(dbpediaResponse)
                 .append(";\n question type: ").append(questionType);
 
         return sb.toString();

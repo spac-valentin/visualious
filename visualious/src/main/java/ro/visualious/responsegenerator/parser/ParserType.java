@@ -11,7 +11,7 @@ public interface ParserType {
     /* Map<String, Object> doSomethingUseful(ServiceResponse response)
              throws UnsupportedEncodingException, URISyntaxException, InstantiationException, IllegalAccessException;
  */
-    List<Answer> parseFreebaseResponse(String freebaseResponse, String questionId);
+    //List<Answer> parseFreebaseResponse(String freebaseResponse, String questionId);
 
     List<Answer> parseDBPediaResponse(String dbpediaResponse, String questionId);
 

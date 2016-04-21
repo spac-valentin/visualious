@@ -13,7 +13,6 @@ import ro.visualious.responsegenerator.model.Answer;
 @XmlRootElement(name = "result")
 public class Result {
     private List<Answer> dbpedia = new ArrayList<>();
-    private List<Answer> freebase = new ArrayList<>();
     private String entityType;
 
     public List<Answer> getDbpedia() {
@@ -22,14 +21,6 @@ public class Result {
 
     public void setDbpedia(List<Answer> dbpedia) {
         this.dbpedia = dbpedia;
-    }
-
-    public List<Answer> getFreebase() {
-        return freebase;
-    }
-
-    public void setFreebase(List<Answer> freebase) {
-        this.freebase = freebase;
     }
 
     public String getEntityType() {

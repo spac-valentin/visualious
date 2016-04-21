@@ -13,15 +13,12 @@ import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import ro.visualious.persistence.MongoDBManager;
 import ro.visualious.responsegenerator.model.Answer;
 import ro.visualious.responsegenerator.model.Person;
 import ro.visualious.responsegenerator.parser.helper.Constants;
 import ro.visualious.responsegenerator.parser.helper.DBPediaPropertyExtractor;
-import ro.visualious.responsegenerator.parser.helper.FreebasePropertyExtractor;
-import ro.visualious.responsegenerator.parser.helper.MetadataProperties;
 
 /**
  * Created by Spac on 4/12/2015.
@@ -33,21 +30,6 @@ class ChildrenOfParser extends AbstractParserType  {
         TYPE = Constants.PERSON;
     }
 
-    @Override
-    public List<Answer> parseFreebaseResponse(String freebaseResponse, String questionId) {
-        Map<String, String> freebaseChildrenInfo = new HashMap<>();
-        parseFreebaseForUriAndName(freebaseResponse, freebaseChildrenInfo);
-
-        ArrayList<String> listOfUris = new ArrayList<>();
-        listOfUris.addAll(freebaseChildrenInfo.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
-
-        List<Answer> answers = new ArrayList<>();
-        extractFreebaseAnswers(questionId, listOfUris, answers, 0, Constants.MAX_CHUNK_SIZE);
-
-        new Thread(() -> extractFreebaseAnswers(questionId, listOfUris, null, Constants.MAX_CHUNK_SIZE, 0)).start();
-
-        return answers;
-    }
 
     @Override
     public List<Answer> parseDBPediaResponse(String dbpediaResponse, String questionId) {
@@ -65,37 +47,7 @@ class ChildrenOfParser extends AbstractParserType  {
         return answers;
     }
 
-    /**
-     * Iterates through freebase response, searches for /people/person/children tag and extracts the valued from there.
-     * The data is used to populate the @param freebaseChildUri, (key, value) = (childName, freebaseUri)
-     */
-    private void parseFreebaseForUriAndName(String freebase, Map<String, String> freebaseChildUri) {
-        JsonNode freebaseResponse;
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            freebaseResponse = mapper.readTree(freebase);
-            JsonNode bindings = freebaseResponse.get("result");
 
-            if (bindings.isArray()) {
-                ArrayNode results = (ArrayNode) bindings;
-
-                //iterates through object in bindings array
-                for (JsonNode node : results) {
-                    System.out.println(node.toString());
-                    JsonNode children = node.get(MetadataProperties.CHILDREN.getFreebase());
-                    if (children.isArray()) {
-                        for (JsonNode child : children) {
-                            freebaseChildUri.put(DBPediaPropertyExtractor.extractValue(child.get("name")),
-                                    FreebasePropertyExtractor.getFreebaseLink(DBPediaPropertyExtractor.extractValue(child.get("id"))));
-                        }
-                    }
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Parses the response from dbpedia. Iterates through properties of "bindings", extracts the value of uris and saves
@@ -148,43 +100,6 @@ class ChildrenOfParser extends AbstractParserType  {
             e.printStackTrace();
         }
     }
-
-
-    private void extractFreebaseAnswers(String questionId, List<String> uris, List<Answer> answers, int offset, int max) {
-        Person person;
-        int start = 0, finish;
-
-        if(offset == 0) {
-            finish = Math.min(max, uris.size());
-        } else {
-            start = offset;
-            finish = uris.size();
-        }
-
-        if(answers == null) {
-            answers = new ArrayList<>();
-        }
-
-        PersonParser parser = new PersonParser();
-
-        for(int idx = start; idx < finish; idx++) {
-            try {
-                person = parser.freebaseWhoIs(new URI(uris.get(idx)));
-                Answer s = Answer.getBuilderForQuestion(questionId)
-                        .setBody(person)
-                        .setOrigin(Constants.FREEBASE)
-                        .setType(TYPE)
-                        .build();
-                answers.add(s);
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //save in db???
-        MongoDBManager.saveAnswerList(answers);
-    }
-
 
     private void extractDBPediaAnswers(String questionId, List<String> uris, List<Answer> answers, int offset, int finish) {
         Person person;

@@ -142,7 +142,6 @@ public class Dispatcher {
         Result result = new Result();
         result.setEntityType(entityType);
         result.setDbpedia(dbpedia);
-        result.setFreebase(freebase);
 
         return result;
     }
@@ -174,27 +173,6 @@ public class Dispatcher {
         return result;
     }
 
-    @Deprecated
-    private static void queryFreebase(SearchDAO searchDAO, ServiceResponse response) {
-        try {
-            QuepyResponse quepyResponse = queryQuepy(QueryType.MQL, searchDAO.getQuery());
-            response.setFreebaseResponse(queryService(Constants.FREEBASE, quepyResponse.getQuery()));
-
-            if (!response.getFreebaseResponse().trim().isEmpty()) {
-                response.setQuestionType(quepyResponse.getRule());
-            }
-
-            if (log.isInfoEnabled()) {
-                log.info("Freebase quepy response: " + quepyResponse.toString());
-            }
-
-        } catch (InstantiationException | IllegalArgumentException |
-                IllegalAccessException | UnsupportedEncodingException | URISyntaxException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Could not query DBPedia ", e);
-            }
-        }
-    }
 
     private static void queryDBPedia(SearchDAO searchDAO, ServiceResponse response) {
         try {
